@@ -17,6 +17,12 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 
+// Router import
+import userRoutes from "./routes/user.routes.js"
+
+// Routers declaration
+app.use("/api/v1/users",userRoutes);
+
 
 export { app }
 // 13:00 time
