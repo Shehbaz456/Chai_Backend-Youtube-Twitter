@@ -7,11 +7,16 @@ import { User } from "../models/user.model.js"
 
 
 const registerUser = asyncHandler(async(req,res)=>{
-    // Steps to register user
-    // 1 get data from body
-    // 2 validate data is not empty
-    // 3 check email is already register or not
-    // 4 Save user into DB
+    
+    // get user details from frontend
+    // validation - not empty
+    // check if user already exists: username, email
+    // check for images, check for avatar
+    // upload them to cloudinary, avatar
+    // create user object - create entry in db
+    // remove password and refresh token field from response
+    // check for user creation
+    // return res
 
     const {username,email,fullName,password} = req.body
 
@@ -27,13 +32,17 @@ const registerUser = asyncHandler(async(req,res)=>{
         if(existedUser){
             throw new ApiError(409,"User with email or username already exists");
         }
-
-        console.log(req.files);
         
         // avatar,coverImage url 
         const avatarLocalpath = req.files?.avatar[0]?.path
-        const coverImgLocalpath = req.files?.coverImage[0]?.path
+        // const coverImgLocalpath = req.files?.coverImage[0]?.path
         
+        let coverImgLocalpath;
+        if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0 ){
+            coverImgLocalpath = req.files.coverImage[0].path
+        }
+
+
         if(!avatarLocalpath){
             throw new ApiError(400,"Avatar file is required");
         }
@@ -61,20 +70,14 @@ const registerUser = asyncHandler(async(req,res)=>{
        }
 
       return res.status(201).json(
-        new ApiResponse(200,"User Register Successfully")
+        new ApiResponse(200,createdUser,"User Register Successfully")
        )
 
 
     } catch (error) {
         
     }
-
-    res.status(200).json({
-        success:true,
-        message:"Register successfully"
-    })
-    console.log("Register User");
-    
+  
 })
 
 export {registerUser};
