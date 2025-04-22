@@ -21,12 +21,15 @@ router.post(
 
 
 router.post("/login",loginUser);
-router.post("/logout",verifyToken,logoutUser);
 router.post("/refresh-token",refreshAccessToken);
-router.post("/change-password",verifyToken,changeCurrentPassword);
-router.get("/current-user",verifyToken,getCurrentUser);
-router.patch("/update-account",verifyToken,updateAccountDetails);
 
+// Protected Routes
+router.post("/logout",verifyToken,logoutUser);
+router.post("/change-password",verifyToken,changeCurrentPassword);
+
+router.get("/current-user",verifyToken,getCurrentUser);
+
+router.patch("/update-account",verifyToken,updateAccountDetails);
 
 router.patch("/avatar",verifyToken,upload.single("avatar"),updateUserAvatar);
 router.patch("/cover-image",verifyToken,upload.single("coverImage"),updateUserCoverImage);
