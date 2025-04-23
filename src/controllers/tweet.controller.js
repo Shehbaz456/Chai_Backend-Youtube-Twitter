@@ -49,7 +49,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
     );
 });
 
-
 const updateTweet = asyncHandler(async (req, res) => {
     const {tweetId} = req.params;
     const {content} = req.body;
