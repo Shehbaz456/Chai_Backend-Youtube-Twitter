@@ -1,6 +1,6 @@
 import { Router } from "express";
 const router = Router();
-import { loginUser, logoutUser, registerUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserCoverImage ,updateUserAvatar,getUserChannelProfile} from "../controllers/user.controller.js";
+import { loginUser, logoutUser, registerUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserCoverImage ,updateUserAvatar,getUserChannelProfile ,getWatchHistory} from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 
@@ -35,5 +35,6 @@ router.patch("/avatar",verifyToken,upload.single("avatar"),updateUserAvatar);
 router.patch("/cover-image",verifyToken,upload.single("coverImage"),updateUserCoverImage);
 
 router.get("/c/:username",verifyToken,getUserChannelProfile);
+router.get("/history",verifyToken,getWatchHistory)
 
 export default router;
