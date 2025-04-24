@@ -82,7 +82,94 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
-    //TODO: update video details like title, description, thumbnail
+    const { title, description } = req.body;
+
+    // Validate videoId
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    // Check user exists
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Find video
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    // Check authorization
+    if (String(video.owner) !== String(req.user._id)) {
+        throw new ApiError(403, "You are not authorized to update this video");
+    }
+
+    // Prepare file paths
+    const videoLocalPath = req.files?.videoFile?.[0]?.path;
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+
+    let updatedThumbnailUrl = video.thumbnail;
+    let updatedVideoUrl = video.videoFile;
+
+    // Update thumbnail if new one is provided
+    if (thumbnailLocalPath) {
+        try {
+            await deleteFromCloudinary(video.thumbnail);
+            const uploadedThumbnail =
+                await uploadOnCloudinary(thumbnailLocalPath);
+            updatedThumbnailUrl = uploadedThumbnail.url;
+        } catch (error) {
+            console.error("Error updating thumbnail:", error);
+            throw new ApiError(500, "Failed to update thumbnail");
+        }
+    }
+
+    let durationInSeconds;
+    // Update video if new one is provided
+    if (videoLocalPath) {
+        try {
+            await deleteFromCloudinary(video.videoFile);
+            const uploadedVideo = await uploadOnCloudinary(videoLocalPath);
+            updatedVideoUrl = uploadedVideo.url;
+            durationInSeconds = parseFloat(uploadedVideo.duration);
+            if (isNaN(durationInSeconds))
+                throw new ApiError(500, "Invalid video duration");
+        } catch (error) {
+            console.error("Error updating video:", error);
+            throw new ApiError(500, "Failed to update video file");
+        }
+    }
+
+    // Prepare update payload
+    const updatePayload = {
+        title: title || video.title,
+        description: description || video.description,
+        thumbnail: updatedThumbnailUrl,
+        videoFile: updatedVideoUrl,
+        duration: video.duration, // default if not changed
+    };
+
+    // Only override duration if new video was uploaded
+    if (durationInSeconds !== undefined) {
+        updatePayload.duration = durationInSeconds;
+    }
+
+    // Update video document
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        { $set: updatePayload },
+        { new: true }
+    );
+
+    if (!updatedVideo) {
+        throw new ApiError(500, "Failed to update video");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, updatedVideo, "Video updated successfully")
+    );
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
