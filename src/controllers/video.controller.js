@@ -117,14 +117,14 @@ const updateVideo = asyncHandler(async (req, res) => {
     if (thumbnailLocalPath) {
         try {
             await deleteFromCloudinary(video.thumbnail);
-            const uploadedThumbnail =
-                await uploadOnCloudinary(thumbnailLocalPath);
+            const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
             updatedThumbnailUrl = uploadedThumbnail.url;
         } catch (error) {
             console.error("Error updating thumbnail:", error);
             throw new ApiError(500, "Failed to update thumbnail");
         }
     }
+
 
     let durationInSeconds;
     // Update video if new one is provided
@@ -204,6 +204,22 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    video.isPublished = !video.isPublished; // toggle the boolean value
+    await video.save();
+
+    res.status(200).json(
+        new ApiResponse(200, video, `Video is now ${video.isPublished ? "published" : "unpublished"}`)
+    ); 
 });
 
 export {
