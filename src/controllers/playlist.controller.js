@@ -48,26 +48,29 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         .sort({ createdAt: -1 }); // Latest first
 
     console.log(userPlaylists);
-        
+
     if (!userPlaylists || userPlaylists.length === 0) {
         throw new ApiError(404, "No playlists found for this user");
     }
 
     res.status(200).json(
-        new ApiResponse( 200, userPlaylists, "User playlists retrieved successfully")
+        new ApiResponse(
+            200,
+            userPlaylists,
+            "User playlists retrieved successfully"
+        )
     );
 });
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
-    
+
     if (!isValidObjectId(playlistId)) {
         throw new ApiError(400, "Invalid playlist ID");
     }
 
-    const playlist = await Playlist.findById(playlistId)
-        .populate("videos") // includes full video details
-        // .populate("owner", "username email"); 
+    const playlist = await Playlist.findById(playlistId).populate("videos"); // includes full video details
+    // .populate("owner", "username email");
 
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
@@ -89,7 +92,31 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 
 const deletePlaylist = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
-    // TODO: delete playlist
+    const userId = req.user._id;
+
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Invalid playlist ID");
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found");
+    }
+
+    // Check ownership
+    if (playlist.owner.toString() !== userId.toString()) {
+        throw new ApiError(
+            403,
+            "You are not authorized to delete this playlist"
+        );
+    }
+
+    await playlist.deleteOne();
+
+    res.status(200).json(
+        new ApiResponse(200, null, "Playlist deleted successfully")
+    );
 });
 
 const updatePlaylist = asyncHandler(async (req, res) => {
