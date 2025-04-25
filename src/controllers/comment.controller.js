@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -44,10 +44,9 @@ const addComment = asyncHandler(async (req, res) => {
 });
 
 const updateComment = asyncHandler(async (req, res) => {
-    // TODO: update a comment
     const { content } = req.body;
     const { commentId } = req.params;
-    
+
     const userId = req.user._id;
 
     if (!isValidObjectId(userId)) {
@@ -66,24 +65,51 @@ const updateComment = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Comment not found");
     }
 
-     // Authorization check
-     if (String(comment.owner) !== String(userId)) {
-        throw new ApiError(403, "You are not authorized to update this comment");
+    // Authorization check
+    if (String(comment.owner) !== String(userId)) {
+        throw new ApiError(
+            403,
+            "You are not authorized to update this comment"
+        );
     }
 
     // Update content
     comment.content = content.trim();
     const updatedComment = await comment.save();
 
-   
     res.status(200).json(
         new ApiResponse(200, updatedComment, "Comment updated successfully")
     );
-
 });
 
 const deleteComment = asyncHandler(async (req, res) => {
-    // TODO: delete a comment
+    const { commentId } = req.params;
+    const userId = req.user._id;
+
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid user ID");
+    }
+    if (!isValidObjectId(commentId)) {
+        throw new ApiError(400, "Invalid comment ID");
+    }
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+        throw new ApiError(404, "Comment not found");
+    }
+
+    // Authorization: only the owner can delete their comment
+    if (String(comment.owner) !== String(userId)) {
+        throw new ApiError(
+            403,
+            "You are not authorized to delete this comment"
+        );
+    }
+
+    await Comment.findByIdAndDelete(commentId);
+    res.status(200).json(
+        new ApiResponse(200, null, "Comment deleted successfully")
+    );
 });
 
 export { getVideoComments, addComment, updateComment, deleteComment };
