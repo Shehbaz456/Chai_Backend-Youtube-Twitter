@@ -30,9 +30,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         filters.owner = userId;
     }
 
-    const sortOptions = {
-        [sortBy]: sortType === "asc" ? 1 : -1
-    };
+    const sortOptions = { [sortBy]: sortType === "asc" ? 1 : -1 };
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 

@@ -26,7 +26,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const totalComments = await Comment.countDocuments({ video: videoId });
     const totalPages = Math.ceil(totalComments / limit);
 
-    // Fetch paginated comments
     const videoComments = await Comment.find({ video: videoId })
         .skip(skip)
         .limit(limit)
