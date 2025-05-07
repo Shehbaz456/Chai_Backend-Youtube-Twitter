@@ -8,7 +8,35 @@ import { Video } from "../models/video.model.js";
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const { videoId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
+    const page = Math.max(1, parseInt(req.query.page)) || 1;
+    const limit = Math.max(1, parseInt(req.query.limit)) || 5;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    // Check if video exists
+    const videoExists = await Video.exists({ _id: videoId });
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    // Get total number of comments for pagination
+    const totalComments = await Comment.countDocuments({ video: videoId });
+    const totalPages = Math.ceil(totalComments / limit);
+
+    // Fetch paginated comments
+    const videoComments = await Comment.find({ video: videoId })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }) 
+        .populate("owner", "username avatar") // include owner details
+        .lean(); // Improve performance by returning plain JS objects
+
+    return res.status(200).json(new ApiResponse( 200,
+    { videoComments, totalComments, page, totalPages }, "Video comments fetched successfully")
+    );
 });
 
 const addComment = asyncHandler(async (req, res) => {
