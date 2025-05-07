@@ -7,7 +7,7 @@ import {verifyToken} from "../middlewares/auth.middleware.js"
 
 const router = Router();
 
-router.use(verifyToken); // Apply verifyToken middleware to all routes in this file
+router.use(verifyToken); 
 
 router.route("/stats").get(getChannelStats);
 router.route("/videos").get(getChannelVideos);
