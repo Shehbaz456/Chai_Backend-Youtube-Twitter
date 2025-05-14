@@ -46,7 +46,23 @@ skyfeed/
 ├── README.md
 └── Database_Design.txt
 ```
+🔐 Key Features
+✅ JWT Authentication (Access + Refresh Token)
+🎞 Upload & manage videos
+💬 Commenting system with likes
+🐦 Tweet and micro-blogging features
+📺 Playlist creation and management
+📚 User subscriptions and watch history
 
-## Chai or Backend ( BUILD BACKEND ROBUST )
-This series discusses Chai and core backend development.
-All credits go to Chai and the Code channel 🍾👩‍💻.  
+💻 Tech Stack
+Backend: Node.js, Express.js
+Database: MongoDB + Mongoose
+Auth: JWT + Refresh Tokens
+File Uploads: Multer, Cloudinary (if used)
+Validation: Joi (if applicable)
+
+📺 Series Inspiration
+Special thanks to Chai aur Code for the incredible backend series that inspired and guided this build. 🍾👨‍💻
+
+📜 License
+This project is open source and available under the MIT License.
