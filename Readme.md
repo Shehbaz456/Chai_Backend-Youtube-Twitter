@@ -46,22 +46,22 @@ skyfeed/
 ├── README.md
 └── Database_Design.txt
 ```
-🔐 Key Features
-✅ JWT Authentication (Access + Refresh Token)
-🎞 Upload & manage videos
-💬 Commenting system with likes
-🐦 Tweet and micro-blogging features
-📺 Playlist creation and management
-📚 User subscriptions and watch history
+### 🔐 Key Features
+ - ✅ JWT Authentication (Access + Refresh Token)
+ - 🎞 Upload & manage videos
+ - 💬 Commenting system with likes
+ - 🐦 Tweet and micro-blogging features
+ - 📺 Playlist creation and management
+ - 📚 User subscriptions and watch history
 
-💻 Tech Stack
-Backend: Node.js, Express.js
-Database: MongoDB + Mongoose
-Auth: JWT + Refresh Tokens
-File Uploads: Multer, Cloudinary (if used)
-Validation: Joi (if applicable)
+### 💻 Tech Stack
+ - Backend: Node.js, Express.js
+ - Database: MongoDB + Mongoose
+ - Auth: JWT + Refresh Tokens
+ - File Uploads: Multer, Cloudinary (if used)
+ - Validation: Joi (if applicable)
 
-📺 Series Inspiration
+### 📺 Series Inspiration
 Special thanks to Chai aur Code for the incredible backend series that inspired and guided this build. 🍾👨‍💻
 
 📜 License
