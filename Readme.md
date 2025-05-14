@@ -1,17 +1,3 @@
-
-## YouTube Twitter - SkyFeed 💖
-
-### Database design Approach
-#### https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj
-
-### BUILD BACKEND ROBUST
-
-## Chai or Backend
-This series discusses Chai and core backend development.
-
-All credits go to Chai and the Code channel 🍾👩‍💻.  
-
-
 # 🎥🐦 YouTube Twitter - SkyFeed 💖
 
 SkyFeed is a robust full-stack application that combines features of YouTube and Twitter into a single platform, enabling users to upload videos, tweet updates, interact through comments, and more.
@@ -59,3 +45,8 @@ skyfeed/
 ├── .gitignore
 ├── README.md
 └── Database_Design.txt
+```
+
+## Chai or Backend ( BUILD BACKEND ROBUST )
+This series discusses Chai and core backend development.
+All credits go to Chai and the Code channel 🍾👩‍💻.  
