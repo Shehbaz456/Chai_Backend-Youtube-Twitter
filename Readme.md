@@ -61,6 +61,10 @@ skyfeed/
  - File Uploads: Multer, Cloudinary (if used)
  - Validation: Joi (if applicable)
 
+### frontend view
+![image](https://github.com/user-attachments/assets/361bf77a-56c9-4472-a5b5-ed4882edea56)
+
+
 ### 📺 Series Inspiration
 Special thanks to Chai aur Code for the incredible backend series that inspired and guided this build. 🍾👨‍💻
 
