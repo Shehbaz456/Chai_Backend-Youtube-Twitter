@@ -48,73 +48,72 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All filed are required");
     }
 
-    try {
-        const existedUser = await User.findOne({
-            $or: [{ username }, { email }],
-        });
+    const existedUser = await User.findOne({
+        $or: [{ username }, { email }],
+    });
 
-        if (existedUser) {
-            throw new ApiError(
-                409,
-                "User with email or username already exists"
-            );
-        }
+    if (existedUser) {
+        throw new ApiError(409, "User with email or username already exists");
+    }
 
-        // avatar,coverImage url
-        const avatarLocalpath = req.files?.avatar[0]?.path;
-        // const coverImgLocalpath = req.files?.coverImage[0]?.path
+    // avatar,coverImage url
+    // const avatarLocalpath = req.files?.avatar[0]?.path;
+    // const coverImgLocalpath = req.files?.coverImage[0]?.path
+    let avatarLocalpath;
+    if (
+        req.files &&
+        Array.isArray(req.files.avatar) &&
+        req.files.avatar.length > 0
+    ) {
+        avatarLocalpath = req.files.avatar[0].path;
+    }
 
-        let coverImgLocalpath;
-        if (
-            req.files &&
-            Array.isArray(req.files.coverImage) &&
-            req.files.coverImage.length > 0
-        ) {
-            coverImgLocalpath = req.files.coverImage[0].path;
-        }
+    let coverImgLocalpath;
+    if (
+        req.files &&
+        Array.isArray(req.files.coverImage) &&
+        req.files.coverImage.length > 0
+    ) {
+        coverImgLocalpath = req.files.coverImage[0].path;
+    }
 
-        if (!avatarLocalpath) {
-            throw new ApiError(400, "Avatar file is required");
-        }
+    // upload into cloudinary
+    // const avatar = await uploadOnCloudinary(avatarLocalpath);
+    // const coverImage = await uploadOnCloudinary(coverImgLocalpath);
+    const avatar = avatarLocalpath
+        ? await uploadOnCloudinary(avatarLocalpath)
+        : null;
+    const coverImage = coverImgLocalpath
+        ? await uploadOnCloudinary(coverImgLocalpath)
+        : null;
 
-        // upload into cloudinary
-        const avatar = await uploadOnCloudinary(avatarLocalpath);
-        const coverImage = await uploadOnCloudinary(coverImgLocalpath);
+    const userData = {
+        fullName,
+        email,
+        password,
+        username,
+    };
 
-        if (!avatar) {
-            throw new ApiError(400, "Avatar file is required");
-        }
+    // Only add avatar, coverImage if it exists
+    if (avatar?.url) {
+        userData.avatar = avatar.url;
+    }
+    if (coverImage?.url) {
+        userData.coverImage = coverImage.url;
+    }
+    const user = await User.create(userData);
 
-        const userData = {
-            fullName,
-            avatar: avatar.url,
-            email,
-            password,
-            username,
-        };
-
-        // Only add coverImage if it exists
-        if (coverImage?.url) {
-            userData.coverImage = coverImage.url;
-        }
-        const user = await User.create(userData);
-
-        const createdUser = await User.findById(user._id).select(
-            "-password -refreshToken"
+    const createdUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+    if (!createdUser) {
+        throw new ApiError(
+            500,
+            "somthing went wrong while registering the user"
         );
-        if (!createdUser) {
-            throw new ApiError(
-                500,
-                "somthing went wrong while registering the user"
-            );
-        }
+    }
 
-        return res
-            .status(201)
-            .json(
-                new ApiResponse(200, createdUser, "User Register Successfully")
-            );
-    } catch (error) {}
+    return res.status(201).json(new ApiResponse(200, createdUser, "User Register Successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -521,5 +520,5 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
 };
