@@ -26,7 +26,8 @@ A well-structured database schema ensures scalability and maintainability.
 📌 **View the ER Diagram:**
 [SkyFeed Database Schema](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj)
 
-![Database ERD](./assets/skyfeed-erd.png) <!-- Add the image to your repo if needed -->
+![Database ERD]<!-- Add the image to your repo if needed -->
+![image](https://github.com/user-attachments/assets/ca6a46d2-87cb-41a1-b9b2-63f0c956bba0)
 
 ---
 
