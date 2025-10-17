@@ -27,6 +27,7 @@ import playlistRouter from "./routes/playlist.routes.js";
 import likeRouter from "./routes/like.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js"; 
 
 // Routers declaration
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -38,5 +39,12 @@ app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found`});
+});
+app.use(errorHandler);
 
 export { app }

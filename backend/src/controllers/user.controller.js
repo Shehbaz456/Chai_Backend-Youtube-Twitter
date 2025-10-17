@@ -7,6 +7,7 @@ import {
 } from "../utils/cloudinary.js";
 
 import { User } from "../models/user.model.js";
+import { cleanupTempFiles } from "../middlewares/error.middleware.js";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefereshTokens = async (userId) => {
@@ -40,19 +41,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const { username, email, fullName, password } = req.body;
 
-    if (
-        [username, email, fullName, password].some((field) => {
-            field?.trim() === "";
-        })
-    ) {
-        throw new ApiError(400, "All filed are required");
-    }
-
     const existedUser = await User.findOne({
         $or: [{ username }, { email }],
     });
 
     if (existedUser) {
+        cleanupTempFiles(req) // clean file
         throw new ApiError(409, "User with email or username already exists");
     }
 
@@ -65,27 +59,23 @@ const registerUser = asyncHandler(async (req, res) => {
         Array.isArray(req.files.avatar) &&
         req.files.avatar.length > 0
     ) {
-        avatarLocalpath = req.files.avatar[0].path;
+        avatarLocalpath = req.files?.avatar?.[0]?.path;
     }
 
     let coverImgLocalpath;
     if (
         req.files &&
         Array.isArray(req.files.coverImage) &&
-        req.files.coverImage.length > 0
+        req.files?.coverImage.length > 0
     ) {
-        coverImgLocalpath = req.files.coverImage[0].path;
+        coverImgLocalpath = req.files?.coverImage?.[0]?.path;
     }
 
     // upload into cloudinary
     // const avatar = await uploadOnCloudinary(avatarLocalpath);
     // const coverImage = await uploadOnCloudinary(coverImgLocalpath);
-    const avatar = avatarLocalpath
-        ? await uploadOnCloudinary(avatarLocalpath)
-        : null;
-    const coverImage = coverImgLocalpath
-        ? await uploadOnCloudinary(coverImgLocalpath)
-        : null;
+    const avatar = avatarLocalpath ? await uploadOnCloudinary(avatarLocalpath) : null;
+    const coverImage = coverImgLocalpath ? await uploadOnCloudinary(coverImgLocalpath) : null;
 
     const userData = {
         fullName,
@@ -126,10 +116,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { email, username, password } = req.body;
     // console.log(email);
-
-    if (!username && !email) {
-        throw new ApiError(400, "username or email is required");
-    }
 
     const user = await User.findOne({
         $or: [{ username }, { email }],
@@ -259,17 +245,17 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     // create user for DB query
     // check password is correct
     // if incorrect password throw error
-    const { oldpassword, newpassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user?._id);
 
     // check old password is correct
-    const isPasswordCorrect = await user.isPasswordCorrect(oldpassword);
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid old password");
     }
 
-    user.password = newpassword;
+    user.password = newPassword;
     await user.save({ validateBeforeSave: false });
     return res
         .status(200)
@@ -284,10 +270,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { email, fullName } = req.body;
-
-    if (!email || !fullName) {
-        throw new ApiError(400, "All fields are required");
-    }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
