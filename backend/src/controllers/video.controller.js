@@ -21,6 +21,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
         userId,
     } = req.query;
 
+    // Check if user exists
+    const userExists = await User.exists({ _id: userId });
+    if (!userExists) {
+        throw new ApiError(404, "User not found");
+    }
+
+
     const filters = {
         isPublished: true,
         title: { $regex: query, $options: "i" }, // case-insensitive search
@@ -29,6 +36,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     if (userId && isValidObjectId(userId)) {
         filters.owner = userId;
     }
+
 
     const sortOptions = { [sortBy]: sortType === "asc" ? 1 : -1 };
 
