@@ -6,25 +6,12 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createTweet = asyncHandler(async (req, res) => {
     const {content} = req.body;
-    if (!content?.trim()) {
-        throw new ApiError(400, "Content is required");
-    }
-
-    const trimmedContent = content.trim();
-    if (trimmedContent.length < 3) {
-        throw new ApiError(400, "Tweet must be at least 3 character");
-    }
-
-    if (trimmedContent.length > 280) {
-        throw new ApiError(400, "Tweet cannot exceed 280 characters");
-    }
-
     const userId = req.user?._id;
+
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid user ID");
     }
-
-    const newTweet = await Tweet.create({content:trimmedContent, owner:userId })
+    const newTweet = await Tweet.create({content, owner:userId })
     
     res.status(201).json(new ApiResponse(201,newTweet,"Tweet created successfully"))
 })
@@ -32,17 +19,14 @@ const createTweet = asyncHandler(async (req, res) => {
 const getUserTweets = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
-    // Validate userId
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid user ID");
     }
 
     // Fetch all tweets from the user
     const userTweets = await Tweet.find({ owner: userId })
-        .sort({ createdAt: -1 })  // Optional: latest tweets first
-        .select("-__v");          // Optional: remove internal fields
-
-    console.log(userTweets);
+        .sort({ createdAt: -1 })  // latest tweets first
+        .select("-__v");       
     
     res.status(200).json(
         new ApiResponse(200, userTweets, "User tweets fetched successfully")
@@ -52,20 +36,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 const updateTweet = asyncHandler(async (req, res) => {
     const {tweetId} = req.params;
     const {content} = req.body;
-
-    if (!content?.trim()) {
-        throw new ApiError(400, "Content is required");
-    }
-
-    const trimmedContent = content.trim();
-    if (trimmedContent.length < 3) {
-        throw new ApiError(400, "Tweet must be at least 3 character");
-    }
-
-    if (trimmedContent.length > 280) {
-        throw new ApiError(400, "Tweet cannot exceed 280 characters");
-    }
-
+    
     if (!isValidObjectId(tweetId)) {
         throw new ApiError(400, "Invalid tweet ID");
     }
@@ -75,7 +46,7 @@ const updateTweet = asyncHandler(async (req, res) => {
     // Update tweet (also ensures only tweet owner can update their tweet)
     const updatedTweet = await Tweet.findByIdAndUpdate(
         { _id: tweetId, owner: userId },
-        { content: trimmedContent },
+        { content},
         { new: true }
     )
     
