@@ -23,6 +23,12 @@ const getUserTweets = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid user ID");
     }
 
+    // Check if user exists
+    const userExists = await User.exists({ _id: userId });
+    if (!userExists) {
+        throw new ApiError(404, "User not found");
+    }
+
     // Fetch all tweets from the user
     const userTweets = await Tweet.find({ owner: userId })
         .sort({ createdAt: -1 })  // latest tweets first
