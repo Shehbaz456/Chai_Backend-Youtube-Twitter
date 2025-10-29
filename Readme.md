@@ -18,6 +18,8 @@ The backend for SkyFeed has been successfully completed, offering:
 > Built using Node.js, Express.js, and MongoDB 🛠️
 
 ---
+## Postman - collection 40+ Api routes 
+- https://www.postman.com/youtube-chai-backend/sky-feed-youtube-twitter-backend/collection/rgyqxfh/youtue-chai-backend?action=share&creator=31156027
 
 ## 🧠 Database Design
 
